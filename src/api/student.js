@@ -1,4 +1,4 @@
-﻿import axios from 'axios'
+﻿const axios = window.axios
 
 const baseURL = import.meta.env.VITE_API_URL || '/api'
 

@@ -13,7 +13,7 @@
     "worker:deploy": "wrangler deploy"
   },
   "dependencies": {
-    "axios": "^1.7.0",
+    "axios": "^1.18.0",
     "vue": "^3.4.0"
   },
   "devDependencies": {
