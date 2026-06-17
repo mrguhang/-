@@ -15,27 +15,25 @@
 
 let nextId = 13
 
-module.exports = function handler(req, res) {
-  const { method, body } = req
-  const url = new URL(req.url, 'http://localhost')
-  const pathname = url.pathname
-  const pathParts = pathname.split('/').filter(Boolean)
-  
+module.exports = (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
   
-  if (method === 'OPTIONS') {
+  if (req.method === 'OPTIONS') {
     return res.status(200).end()
   }
   
-  if (pathParts[0] === 'api' && pathParts[1] === 'students' && !pathParts[2]) {
+  const { method, body } = req
+  const pathname = req.url
+  
+  if (pathname === '/api/students' || pathname === '/api/students/') {
     if (method === 'GET') {
       const sorted = [...students].sort((a, b) => a.studentId.localeCompare(b.studentId))
       return res.status(200).json({ code: 0, data: sorted })
     }
     if (method === 'POST') {
-      const { studentId, name, gender, class: cls, age, phone, status } = body
+      const { studentId, name, gender, class: cls, age, phone, status } = typeof body === 'string' ? JSON.parse(body) : body
       if (!studentId || !name || age === undefined || !phone) {
         return res.status(400).json({ code: 1, message: '请填写完整信息' })
       }
@@ -57,8 +55,9 @@ module.exports = function handler(req, res) {
     }
   }
   
-  if (pathParts[0] === 'api' && pathParts[1] === 'students' && pathParts[2]) {
-    const id = parseInt(pathParts[2])
+  const match = pathname.match(/^\/api\/students\/(\d+)$/)
+  if (match) {
+    const id = parseInt(match[1])
     const index = students.findIndex(s => s.id === id)
     
     if (method === 'GET') {
@@ -69,7 +68,7 @@ module.exports = function handler(req, res) {
     
     if (method === 'PUT') {
       if (index === -1) return res.status(404).json({ code: 1, message: '学生不存在' })
-      const { studentId, name, gender, class: cls, age, phone, status } = body
+      const { studentId, name, gender, class: cls, age, phone, status } = typeof body === 'string' ? JSON.parse(body) : body
       if (!studentId || !name || age === undefined || !phone) {
         return res.status(400).json({ code: 1, message: '请填写完整信息' })
       }
