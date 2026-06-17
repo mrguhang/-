@@ -15,9 +15,11 @@
 
 let nextId = 13
 
-export default function handler(req, res) {
-  const { method, query, body } = req
-  const pathParts = query.path ? query.path.split('/').filter(Boolean) : []
+module.exports = function handler(req, res) {
+  const { method, body } = req
+  const url = new URL(req.url, 'http://localhost')
+  const pathname = url.pathname
+  const pathParts = pathname.split('/').filter(Boolean)
   
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
@@ -27,8 +29,7 @@ export default function handler(req, res) {
     return res.status(200).end()
   }
   
-  // /api/students - GET (列表) 或 POST (新增)
-  if (pathParts[0] === 'students' && !pathParts[1]) {
+  if (pathParts[0] === 'api' && pathParts[1] === 'students' && !pathParts[2]) {
     if (method === 'GET') {
       const sorted = [...students].sort((a, b) => a.studentId.localeCompare(b.studentId))
       return res.status(200).json({ code: 0, data: sorted })
@@ -56,9 +57,8 @@ export default function handler(req, res) {
     }
   }
   
-  // /api/students/:id - GET, PUT, DELETE
-  if (pathParts[0] === 'students' && pathParts[1]) {
-    const id = parseInt(pathParts[1])
+  if (pathParts[0] === 'api' && pathParts[1] === 'students' && pathParts[2]) {
+    const id = parseInt(pathParts[2])
     const index = students.findIndex(s => s.id === id)
     
     if (method === 'GET') {
